@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Generator, Iterator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -9,9 +9,9 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app import config
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 
-def get_db() -> Generator:
+def get_db() -> Iterator[Session]:
     try:
         db = config.SessionLocal()
         yield db

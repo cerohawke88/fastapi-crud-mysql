@@ -14,7 +14,7 @@ class User(Base):
     photo = Column(String(120), index=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    items = relationship("Item", backref="user")
+    items = relationship("Item", back_populates="user")
 
     def save_to_db(db, item):
         db.add(item)
@@ -30,6 +30,7 @@ class User(Base):
 
 
     def get_users(db: Session, skip: int = 0, limit: int = 100):
+        print(type(db))
         return db.query(User).offset(skip).limit(limit).all()
 
     def authenticate_user(db: Session, email: str, password: str):
