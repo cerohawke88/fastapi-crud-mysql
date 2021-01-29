@@ -28,10 +28,13 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        print(token)
         payload = jwt.decode(
             token, config.SECRET_KEY, algorithms=[config.ALGORITHM]
         )
+        print(payload)
         token_data = schemas.TokenPayload(**payload)
+        print(token_data)
     except (JWTError, ValidationError):
         raise credentials_exception
     user = models.User.get_user(db, id=token_data.sub)

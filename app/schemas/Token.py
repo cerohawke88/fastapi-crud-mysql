@@ -8,3 +8,4 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None
+    email: Optional[str] = None

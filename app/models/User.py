@@ -30,11 +30,10 @@ class User(Base):
 
 
     def get_users(db: Session, skip: int = 0, limit: int = 100):
-        print(type(db))
         return db.query(User).offset(skip).limit(limit).all()
 
     def authenticate_user(db: Session, email: str, password: str):
-        user = get_user_by_email(db, email)
+        user = User.get_user_by_email(db, email)
         if not user:
             return False
         if not verify_password(password, user.password):
@@ -47,5 +46,6 @@ class User(Base):
             email = user.email, 
             password = get_password_hash(user.password)
         )
+        print(db_user)
         User.save_to_db(db, db_user)
-        return db_user
+        return db_user.__dict__
