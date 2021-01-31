@@ -23,21 +23,18 @@ async def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
 ) -> models.User:
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+      status_code=status.HTTP_401_UNAUTHORIZED,
+      detail="Could not validate credentials",
+      headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        print(token)
-        payload = jwt.decode(
-            token, config.SECRET_KEY, algorithms=[config.ALGORITHM]
-        )
-        print(payload)
-        token_data = schemas.TokenPayload(**payload)
-        print(token_data)
+      payload = jwt.decode(
+          token, config.SECRET_KEY, algorithms=[config.ALGORITHM], options={'leeway': 99999999999}
+      )
+      token_data = schemas.TokenPayload(**payload)
     except (JWTError, ValidationError):
-        raise credentials_exception
+      raise credentials_exception
     user = models.User.get_user(db, id=token_data.sub)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+      raise HTTPException(status_code=404, detail="User not found")
     return user

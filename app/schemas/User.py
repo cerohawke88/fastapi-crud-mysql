@@ -23,3 +23,9 @@ class User(UserBase):
 
   class Config:
     orm_mode = True
+
+class UserResponse(User):
+  message: str = 'success'
+  data: List[User] = []
+  class Config:
+    orm_mode = True

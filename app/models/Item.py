@@ -33,9 +33,10 @@ class Item(Base):
         return db.query(Item).filter(and_(Item.id == item_id, models.User.id == user_id)).first()
 
     def add_item(db: Session, item: schemas.ItemCreate, user_id: int):
+        print(item)
         db_item = Item(
             **item.dict(),
             user_id = user_id
         )
         Item.save_to_db(db, db_item)
-        return db_item
+        return db_item.__dict__

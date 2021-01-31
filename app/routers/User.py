@@ -23,7 +23,7 @@ def login(
       raise HTTPException(status_code=400, detail="Incorrect email or password")
   access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
   access_token = auth.create_access_token(
-        data={"sub": user.id, "email": user.email}, expires_delta=access_token_expires
+        data={"sub": str(user.id), "email": user.email}, expires_delta=access_token_expires
   )
   return {
       "access_token": access_token,
@@ -49,6 +49,13 @@ def register(
   reg_user = models.User.create_user(db, user=user)
   return reg_user
 
+@users.get("/profile", response_model=schemas.User)
+def read_profile(user: models.User = Depends(dependencies.get_current_user), db: Session = Depends(dependencies.get_db)):
+  """
+  Read current logged in user as a profile
+  """
+  return user
+
 @users.get("/", response_model=List[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db)):
   """
@@ -66,10 +73,3 @@ def read_user(user_id: int, db: Session = Depends(dependencies.get_db)):
   if db_user is None:
       raise HTTPException(status_code=404, detail="User not found")
   return db_user
-
-@users.get("/profile", response_model=schemas.User)
-def read_profile(user: models.User = Depends(dependencies.get_current_user), db: Session = Depends(dependencies.get_db)):
-  """
-  Read current logged in user as a profile
-  """
-  return user
