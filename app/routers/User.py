@@ -3,6 +3,7 @@ from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import models, schemas, config, dependencies, auth
@@ -49,27 +50,36 @@ def register(
   reg_user = models.User.create_user(db, user=user)
   return reg_user
 
-@users.get("/profile", response_model=schemas.User)
+@users.get("/profile", response_model=schemas.UserResponse[schemas.User])
 def read_profile(user: models.User = Depends(dependencies.get_current_user), db: Session = Depends(dependencies.get_db)):
   """
   Read current logged in user as a profile
   """
-  return user
+  return {
+    "message": "success",
+    "data": user
+  }
 
-@users.get("/", response_model=List[schemas.User])
+@users.get("/", response_model=schemas.UserResponse[List[schemas.User]])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db)):
   """
   Read all users
   """
   users = models.User.get_users(db=db, skip=skip, limit=limit)
-  return users
+  return {
+    "message": "success",
+    "data": users
+  }
 
-@users.get("/{user_id}", response_model=schemas.User)
+@users.get("/{user_id}", response_model=schemas.UserResponse[schemas.User])
 def read_user(user_id: int, db: Session = Depends(dependencies.get_db)):
   """
   Read one specific user
   """
-  db_user = models.User.get_user(db, user_id)
-  if db_user is None:
+  user = models.User.get_user(db, user_id)
+  if user is None:
       raise HTTPException(status_code=404, detail="User not found")
-  return db_user
+  return {
+    "message": "success",
+    "data": user
+  }

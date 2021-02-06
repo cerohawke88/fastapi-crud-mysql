@@ -1,6 +1,10 @@
-from typing import List, Optional
+from typing import List, Optional, Generic, TypeVar
 from pydantic import BaseModel, EmailStr
 from app.schemas import Item
+from pydantic.generics import GenericModel
+
+# Creates a generic type
+UserGeneric = TypeVar('UserGeneric')
 
 # Base Shared properties
 class UserBase(BaseModel):
@@ -24,8 +28,6 @@ class User(UserBase):
   class Config:
     orm_mode = True
 
-class UserResponse(User):
-  message: str = 'success'
-  data: List[User] = []
-  class Config:
-    orm_mode = True
+class UserResponse(GenericModel, Generic[UserGeneric]):
+  message: str
+  data: UserGeneric

@@ -17,14 +17,17 @@ def create_item(
   return models.Item.add_item(db, item=item, user_id=user.id)
 
 
-@items.get("/", response_model=List[schemas.Item])
+@items.get("/", response_model=schemas.ItemResponse[List[schemas.Item]])
 def read_items(db: Session = Depends(dependencies.get_db), skip: int = 0, limit: int = 100):
   # read all items
   items = models.Item.get_items(db, skip=skip, limit=limit)
-  return items
+  return {
+    "message": "success",
+    "data": items
+  }
 
 
-@items.get("/me", response_model=List[schemas.Item])
+@items.get("/me", response_model=schemas.ItemResponse[List[schemas.Item]])
 def read_own_items(
   db: Session = Depends(dependencies.get_db), 
   user: models.User = Depends(dependencies.get_current_user), 
@@ -32,19 +35,25 @@ def read_own_items(
 ):
   # read all own items
   items = models.Item.get_own_items(db, user_id = user.id, skip=skip, limit=limit)
-  return items
+  return {
+    "message": "success",
+    "data": items
+  }
 
 
-@items.get("/{item_id}", response_model=schemas.Item)
+@items.get("/{item_id}", response_model=schemas.ItemResponse[schemas.Item])
 def read_item(item_id: int, db: Session = Depends(dependencies.get_db)):
   # read one specific item
   item = models.Item.get_item(db, item_id=item_id)
   if item is None:
       raise HTTPException(status_code=404, detail="Item not found")
-  return item
+  return {
+    "message": "success",
+    "data": items
+  }
 
 
-@items.get("/me/{item_id}", response_model=schemas.Item)
+@items.get("/me/{item_id}", response_model=schemas.ItemResponse[schemas.Item])
 def read_own_item(
   item_id: int,
   user: models.User = Depends(dependencies.get_current_user), 
@@ -58,4 +67,7 @@ def read_own_item(
       status_code=status.HTTP_401_UNAUTHORIZED,
       detail="Unauthorized. Item is not yours.",
     )
-  return item
+  return {
+    "message": "success",
+    "data": items
+  }
